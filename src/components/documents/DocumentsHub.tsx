@@ -52,50 +52,50 @@ export const DocumentsHub: React.FC = () => {
   const docList: { type: DocumentType; label: string; number: string; desc: string; count: number }[] = [
     { 
       type: 'doc1_interview', 
-      number: 'Dokumen #1', 
+      number: 'Dokumen 1', 
       label: 'Borang Temuduga Ringkas', 
-      desc: '7 soalan interview konsisten & checklist penerangan kerja', 
+      desc: '7 soalan interview konsisten & semakan kerja', 
       count: interviewForms.length 
     },
     { 
       type: 'doc2_onboarding', 
-      number: 'Dokumen #2', 
-      label: 'Checklist Hari Pertama', 
-      desc: 'Onboarding asas, 3 tugas utama, & check-in hujung hari', 
+      number: 'Dokumen 2', 
+      label: 'Senarai Semak Hari Pertama', 
+      desc: 'Onboarding asas, 3 tugas utama & check-in', 
       count: onboardingForms.length 
     },
     { 
       type: 'doc3_rules', 
-      number: 'Dokumen #3', 
-      label: 'Checklist Peraturan Kerja', 
-      desc: 'Keluarkan rules dari kepala: telefon, kehadiran & SOP', 
+      number: 'Dokumen 3', 
+      label: 'Senarai Semak Peraturan Kerja', 
+      desc: 'Keluarkan peraturan: telefon, kehadiran & SOP', 
       count: workRulesList.length 
     },
     { 
       type: 'doc4_coaching', 
-      number: 'Dokumen #4', 
+      number: 'Dokumen 4', 
       label: 'Rekod Teguran & Bimbingan', 
-      desc: 'Catatan fakta, sesi dengar penjelasan & tarikh follow-up', 
+      desc: 'Catatan fakta, sesi dengar & tarikh susulan', 
       count: coachingRecords.length 
     },
     { 
       type: 'doc5_explanation', 
-      number: 'Dokumen #5', 
+      number: 'Dokumen 5', 
       label: 'Borang Penjelasan Pekerja', 
-      desc: 'Ruang adil staf jelaskan insiden & cadangan pencegahan', 
+      desc: 'Ruang adil staf jelaskan insiden & pencegahan', 
       count: explanationForms.length 
     },
     { 
       type: 'doc6_emergency', 
-      number: 'Dokumen #6', 
-      label: 'Checklist Sebelum Tindakan Serius', 
-      desc: 'Brek kecemasan boss: 9 langkah semakan & emotion check', 
+      number: 'Dokumen 6', 
+      label: 'Senarai Semak Tindakan Serius', 
+      desc: 'Brek kecemasan bos: 9 langkah semakan & emosi', 
       count: seriousActions.length 
     },
     { 
       type: 'doc8_capacity', 
-      number: 'Dokumen #8', 
-      label: 'Audit Kapasiti (Tambah Pekerja?)', 
+      number: 'Dokumen 7', 
+      label: 'Audit Kapasiti Pekerja', 
       desc: 'Formula: Penat ≠ Automatik tak cukup orang (Audit 7 hari)', 
       count: capacityAudits.length 
     }
@@ -148,65 +148,65 @@ export const DocumentsHub: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
-            Pusat Toolkit Rasmi: 7 Dokumen "AKULAH BOS"
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Dokumen & Rekod Operasi Bos
           </h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
-            Dokumen pengurusan operasi berpandukan kerangka rasmi: Rules • Record • Response.
+          <p className="text-sm text-slate-500 mt-0.5">
+            Format rasmi berpandukan kerangka AKULAH BOS: Rules • Record • Response
           </p>
         </div>
 
         <button
           onClick={() => handleOpenNewRecord(activeDocSubtab)}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-xs transition-colors cursor-pointer"
+          className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 text-base font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl shadow-xs transition-colors cursor-pointer active:scale-98"
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Isi Rekod Baharu</span>
+          <Plus className="w-5 h-5 stroke-[2.5]" />
+          <span>+ Isi Rekod Baharu</span>
         </button>
       </div>
 
       {/* Situasi Operasi (4 Modul Situasi Pantas) */}
-      <div className="bg-neutral-100 p-1.5 rounded-xl flex flex-wrap items-center gap-1.5 text-xs">
-        <span className="font-semibold text-neutral-500 px-2 py-1">Pilih Situasi:</span>
+      <div className="bg-slate-100 p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 text-sm">
+        <span className="font-bold text-slate-500 px-3 py-1">Pilih Situasi:</span>
         <button
           onClick={() => setActiveDocSubtab('doc1_interview')}
-          className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+          className={`min-h-[40px] px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
             activeDocSubtab === 'doc1_interview'
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'text-neutral-700 hover:bg-neutral-200'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'text-slate-700 hover:bg-slate-200'
           }`}
         >
-          1. Nak Interview (Dokumen #1)
+          1. Temuduga (Dokumen 1)
         </button>
         <button
           onClick={() => setActiveDocSubtab(activeDocSubtab === 'doc3_rules' ? 'doc3_rules' : 'doc2_onboarding')}
-          className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+          className={`min-h-[40px] px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
             activeDocSubtab === 'doc2_onboarding' || activeDocSubtab === 'doc3_rules'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-neutral-700 hover:bg-neutral-200'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'text-slate-700 hover:bg-slate-200'
           }`}
         >
-          2. Onboarding & Rules (#2 & #3)
+          2. Onboarding & Peraturan (Dokumen 2 & 3)
         </button>
         <button
           onClick={() => setActiveDocSubtab(activeDocSubtab === 'doc5_explanation' ? 'doc5_explanation' : 'doc4_coaching')}
-          className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+          className={`min-h-[40px] px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
             activeDocSubtab === 'doc4_coaching' || activeDocSubtab === 'doc5_explanation'
-              ? 'bg-amber-600 text-white shadow-xs'
-              : 'text-neutral-700 hover:bg-neutral-200'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'text-slate-700 hover:bg-slate-200'
           }`}
         >
-          3. Rekod Perbincangan (#4 & #5)
+          3. Teguran & Penjelasan (Dokumen 4 & 5)
         </button>
         <button
           onClick={() => setActiveDocSubtab(activeDocSubtab === 'doc8_capacity' ? 'doc8_capacity' : 'doc6_emergency')}
-          className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+          className={`min-h-[40px] px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
             activeDocSubtab === 'doc6_emergency' || activeDocSubtab === 'doc8_capacity'
-              ? 'bg-purple-600 text-white shadow-xs'
-              : 'text-neutral-700 hover:bg-neutral-200'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'text-slate-700 hover:bg-slate-200'
           }`}
         >
-          4. Tindakan Serius & Audit (#6 & #8)
+          4. Tindakan Serius & Kapasiti (Dokumen 6 & 7)
         </button>
       </div>
 

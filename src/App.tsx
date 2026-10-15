@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import { Navbar } from './components/layout/Navbar';
+import { Sidebar } from './components/layout/Sidebar';
+import { MobileNav } from './components/layout/MobileNav';
 import { BossDashboard } from './components/dashboard/BossDashboard';
 import { TaskManager } from './components/tasks/TaskManager';
 import { ProductivityTracker } from './components/productivity/ProductivityTracker';
@@ -22,64 +23,75 @@ const MainLayout: React.FC = () => {
   const [showQuickTask, setShowQuickTask] = useState(false);
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col font-sans">
-      {/* Top Header Navigation */}
-      <Navbar onOpenQuickTaskModal={() => setShowQuickTask(true)} />
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans w-full max-w-full overflow-x-hidden">
+      
+      {/* Desktop Sidebar (Requirement 3: Gunakan sidebar pada desktop) */}
+      <div className="hidden md:flex">
+        <Sidebar onOpenQuickTask={() => setShowQuickTask(true)} />
+      </div>
 
-      {/* Main Viewport Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        {activeTab === 'dashboard' && (
-          <BossDashboard 
-            onOpenNewTask={() => setShowQuickTask(true)}
-            onOpenDocument={(doc) => {
-              setActiveDocSubtab(doc);
-              setActiveTab('documents');
-            }}
-          />
-        )}
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen bg-slate-50">
+        
+        {/* Mobile Header (Requirement 3) */}
+        <MobileNav onOpenQuickTask={() => setShowQuickTask(true)} />
 
-        {activeTab === 'tasks' && (
-          <TaskManager onOpenCreateModal={() => setShowQuickTask(true)} />
-        )}
+        {/* Viewport Content with padding for mobile bottom bar */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 md:pb-12 min-w-0">
+          {activeTab === 'dashboard' && (
+            <BossDashboard 
+              onOpenNewTask={() => setShowQuickTask(true)}
+              onOpenDocument={(doc) => {
+                setActiveDocSubtab(doc);
+                setActiveTab('documents');
+              }}
+            />
+          )}
 
-        {activeTab === 'productivity' && (
-          <ProductivityTracker 
-            onNavigateToDocument={(doc) => {
-              setActiveDocSubtab(doc);
-              setActiveTab('documents');
-            }}
-          />
-        )}
+          {activeTab === 'tasks' && (
+            <TaskManager onOpenCreateModal={() => setShowQuickTask(true)} />
+          )}
 
-        {activeTab === 'documents' && (
-          <DocumentsHub />
-        )}
+          {activeTab === 'productivity' && (
+            <ProductivityTracker 
+              onNavigateToDocument={(doc) => {
+                setActiveDocSubtab(doc);
+                setActiveTab('documents');
+              }}
+            />
+          )}
 
-        {activeTab === 'team' && (
-          <TeamManager />
-        )}
+          {activeTab === 'documents' && (
+            <DocumentsHub />
+          )}
 
-        {activeTab === 'scripts' && (
-          <BossScriptsView />
-        )}
-      </main>
+          {activeTab === 'team' && (
+            <TeamManager />
+          )}
 
-      {/* Clean Editorial Footer */}
-      <footer className="mt-auto border-t border-neutral-200 bg-white py-6 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500">
-          <div className="flex items-center gap-2 font-medium">
-            <span className="font-bold text-neutral-900">AKULAH BOS™</span>
-            <span aria-hidden="true">·</span>
-            <span>Rules · Record · Response</span>
+          {activeTab === 'scripts' && (
+            <BossScriptsView />
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="mt-auto border-t border-slate-200 bg-white py-5 no-print">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-500">
+            <div className="flex items-center gap-2 font-semibold text-slate-800">
+              <span className="font-black text-slate-950">AKULAH BOS</span>
+              <span aria-hidden="true">·</span>
+              <span>Rules · Record · Response</span>
+            </div>
+
+            <div className="flex items-center gap-3 text-slate-500">
+              <span>Fakta → Dengar → Expectation → Next Step</span>
+              <span aria-hidden="true">·</span>
+              <span>Sistem Operasi Pasukan</span>
+            </div>
           </div>
+        </footer>
 
-          <div className="flex items-center gap-4 text-neutral-500">
-            <span>Fakta → Penjelasan → Rekod → Keputusan</span>
-            <span aria-hidden="true">·</span>
-            <span>Hak Cipta Terpelihara Operasi SME</span>
-          </div>
-        </div>
-      </footer>
+      </div>
 
       {/* Global Quick Task Modal */}
       <QuickTaskModal 
@@ -95,6 +107,7 @@ const MainLayout: React.FC = () => {
           onClose={() => setActivePrintDoc(null)} 
         />
       )}
+
     </div>
   );
 };

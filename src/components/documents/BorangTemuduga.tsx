@@ -275,20 +275,20 @@ export default function BorangTemuduga({ onBack, initialData, onSaved }: BorangT
         
         {/* Document Header Badge & Title */}
         <div className="border-b border-slate-100 pb-5 mb-6">
-          <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
-            Dokumen #1
+          <span className="text-xs font-bold text-slate-800 bg-amber-400 px-3 py-1 rounded-md">
+            Dokumen 1
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
             Borang Temuduga Ringkas Pekerja
           </h1>
-          <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
-            Membantu boss interview calon secara konsisten supaya keputusan tidak dibuat hanya kerana <em className="text-slate-900 font-medium">“Nampak okay”</em> atau <em className="text-slate-900 font-medium">“Aku perlukan orang cepat”</em>.
+          <p className="text-slate-600 text-sm sm:text-base mt-1 leading-relaxed">
+            Membantu bos temuduga calon secara konsisten supaya keputusan tidak dibuat hanya kerana <em className="text-slate-900 font-medium">“Nampak okay”</em> atau <em className="text-slate-900 font-medium">“Aku perlukan orang cepat”</em>.
           </p>
 
-          <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div className="mt-3 p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-sm text-amber-950 flex items-start gap-2.5">
+            <Sparkles className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <span>
-              <strong>Peringatan Boss:</strong> Kekosongan satu shift mungkin menyusahkan sehari. Salah ambil orang boleh menyusahkan berbulan-bulan. Interview yang bagus adalah untuk mengurangkan kejutan selepas pekerja masuk.
+              <strong>Peringatan Bos:</strong> Kekosongan satu syif mungkin menyusahkan sehari. Salah ambil orang boleh menyusahkan berbulan-bulan. Temuduga yang berdisiplin adalah untuk mengurangkan kejutan selepas pekerja masuk.
             </span>
           </div>
         </div>
@@ -619,19 +619,19 @@ export default function BorangTemuduga({ onBack, initialData, onSaved }: BorangT
           <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
             <button 
               type="submit"
-              className="w-full sm:flex-1 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="w-full sm:flex-1 min-h-[48px] bg-amber-400 hover:bg-amber-300 text-slate-950 py-3 rounded-xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-5 h-5" />
               <span>Simpan Rekod Temuduga</span>
             </button>
 
             <button
               type="button"
               onClick={handlePrintCurrent}
-              className="w-full sm:w-auto px-5 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto min-h-[48px] px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-900 rounded-xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>Cetak Borang</span>
+              <Printer className="w-5 h-5" />
+              <span>Cetak Borang (A4)</span>
             </button>
           </div>
 

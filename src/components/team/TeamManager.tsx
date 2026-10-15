@@ -68,19 +68,19 @@ export const TeamManager: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Pengurusan Pasukan & Rekod Pekerja
           </h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
+          <p className="text-sm text-slate-500 mt-0.5">
             Senarai nama staf, profil syif kerja, rekod onboarding, dan sejarah bimbingan prestasi.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-xs transition-colors cursor-pointer"
+          className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 text-base font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl shadow-xs transition-colors cursor-pointer active:scale-98"
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <Plus className="w-5 h-5 stroke-[2.5]" />
           <span>+ Tambah Pekerja</span>
         </button>
       </div>

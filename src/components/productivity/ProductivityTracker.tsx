@@ -93,11 +93,11 @@ export const ProductivityTracker: React.FC<ProductivityTrackerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('boss_audit')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-              activeTab === 'boss_audit' ? 'bg-white text-neutral-900 shadow-2xs' : 'text-neutral-600 hover:text-neutral-900'
+            className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-sm font-bold transition-colors cursor-pointer ${
+              activeTab === 'boss_audit' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Analisis Kerja Boss
+            Analisis Kerja Bos
           </button>
           <button
             onClick={() => setActiveTab('alternatives')}
@@ -111,30 +111,30 @@ export const ProductivityTracker: React.FC<ProductivityTrackerProps> = ({
       </div>
 
       {/* Formula Reminder Card */}
-      <div className="bg-neutral-900 text-white rounded-xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-400 text-neutral-950 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
+          <div className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
             ≠
           </div>
           <div>
             <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-              Formula AKULAH BOS™ (Dokumen #8)
+              Formula AKULAH BOS™ (Dokumen 7)
             </h3>
-            <p className="text-sm font-semibold text-white mt-1">
+            <p className="text-base font-bold text-white mt-1">
               PENAT ≠ AUTOMATIK TAK CUKUP PEKERJA
             </p>
-            <p className="text-xs text-neutral-300 mt-1">
-              Boss boleh penat kerana: tugas tak jelas, jadual tak teratur, rekod berselerak, proses terlalu manual, atau semua keputusan masih perlu tunggu boss.
+            <p className="text-sm text-slate-300 mt-1">
+              Bos boleh penat kerana: tugas tak jelas, jadual tak teratur, rekod berselerak, proses terlalu manual, atau semua keputusan masih perlu tunggu bos.
             </p>
           </div>
         </div>
 
         <button
           onClick={() => onNavigateToDocument('doc8_capacity')}
-          className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-medium rounded-lg border border-neutral-700 shrink-0 cursor-pointer"
+          className="min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold rounded-xl border border-slate-700 shrink-0 cursor-pointer"
         >
           <span>Buka Audit Kapasiti Penuh</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 

@@ -9,7 +9,6 @@ import {
 import { 
   Plus, 
   Search, 
-  Filter, 
   CheckCircle2, 
   Clock, 
   AlertTriangle, 
@@ -17,10 +16,12 @@ import {
   Edit3, 
   List, 
   Columns3, 
+  ChevronDown, 
+  ChevronUp, 
+  X, 
+  UserCheck, 
   Sparkles,
-  ChevronRight,
-  ShieldCheck,
-  UserCheck
+  Layers
 } from 'lucide-react';
 
 interface TaskManagerProps {
@@ -33,13 +34,26 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ onOpenCreateModal }) =
     teamMembers, 
     setTaskStatus, 
     deleteTask, 
-    updateTask 
+    updateTask,
+    addTask
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStaff, setSelectedStaff] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+
+  // Requirement 4: Jadikan paparan senarai sebagai tetapan awal pada telefon
+  const [viewMode, setViewMode] = useState<'board' | 'list'>(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return 'list';
+    }
+    return 'board';
+  });
+
+  // State for previewing full task details and SOP on card click
+  const [previewTask, setPreviewTask] = useState<Task | null>(null);
+
+  // State for editing task
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Filter tasks
@@ -54,108 +68,107 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ onOpenCreateModal }) =
 
   const categories: { id: string; label: string }[] = [
     { id: 'all', label: 'Semua Tugasan' },
-    { id: 'opening', label: 'Pembukaan (Opening SOP)' },
-    { id: 'peak_hour', label: 'Waktu Puncak (Peak Hour)' },
-    { id: 'closing', label: 'Penutupan (Closing SOP)' },
+    { id: 'opening', label: 'Pembukaan (Opening)' },
+    { id: 'peak_hour', label: 'Waktu Puncak (Peak)' },
+    { id: 'closing', label: 'Penutupan (Closing)' },
     { id: 'operasi', label: 'Operasi Rutin' },
-    { id: 'kebersihan', label: 'Kebersihan & Peralatan' }
+    { id: 'kebersihan', label: 'Kebersihan' }
   ];
 
-  const columns: { id: TaskStatus; label: string; icon: React.ReactNode }[] = [
-    { id: 'todo', label: 'Belum Mula', icon: <Clock className="w-3.5 h-3.5 text-neutral-400" /> },
-    { id: 'in_progress', label: 'Sedang Berjalan', icon: <Clock className="w-3.5 h-3.5 text-blue-500" /> },
-    { id: 'review', label: 'Perlu Semakan', icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> },
-    { id: 'completed', label: 'Telah Siap', icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> }
+  const columns: { id: TaskStatus; label: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'todo', label: 'Belum Mula', icon: <Clock className="w-4 h-4 text-slate-400" />, color: 'border-slate-300' },
+    { id: 'in_progress', label: 'Dalam Proses', icon: <Clock className="w-4 h-4 text-blue-500" />, color: 'border-blue-400' },
+    { id: 'review', label: 'Perlu Semakan', icon: <AlertTriangle className="w-4 h-4 text-amber-500" />, color: 'border-amber-400' },
+    { id: 'completed', label: 'Selesai', icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, color: 'border-emerald-400' }
   ];
+
+  const getStatusBadge = (status: TaskStatus) => {
+    switch (status) {
+      case 'completed':
+        return <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800">Selesai</span>;
+      case 'in_progress':
+        return <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-blue-100 text-blue-800">Dalam Proses</span>;
+      case 'review':
+        return <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-900">Perlu Semakan</span>;
+      case 'todo':
+      default:
+        return <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-100 text-slate-700">Belum Mula</span>;
+    }
+  };
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 max-w-6xl mx-auto">
       
-      {/* Header with Title and Mode Switch */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
-            Pengurusan Tugasan & SOP Pasukan
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Pengurusan Tugasan & SOP
           </h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
-            Pastikan setiap stesen ada PIC yang jelas dan tiada kekeliruan ketika waktu puncak.
+          <p className="text-sm text-slate-500 mt-0.5">
+            Agihan tugas syif, penanggungjawab (PIC), dan pemantauan standard operasi
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-neutral-100 p-1 rounded-lg border border-neutral-200/80">
-            <button
-              onClick={() => setViewMode('board')}
-              className={`p-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-                viewMode === 'board' ? 'bg-white text-neutral-900 shadow-2xs' : 'text-neutral-600 hover:text-neutral-900'
-              }`}
-              title="Paparan Papan Kanban"
-            >
-              <Columns3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Papan</span>
-            </button>
+        <div className="flex items-center gap-2.5">
+          {/* Mode Switcher */}
+          <div className="flex items-center bg-slate-200/80 p-1 rounded-xl">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-                viewMode === 'list' ? 'bg-white text-neutral-900 shadow-2xs' : 'text-neutral-600 hover:text-neutral-900'
+              className={`min-h-[40px] px-3 rounded-lg text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                viewMode === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Paparan Senarai"
             >
               <List className="w-4 h-4" />
-              <span className="hidden sm:inline">Senarai</span>
+              <span>Senarai</span>
+            </button>
+            <button
+              onClick={() => setViewMode('board')}
+              className={`min-h-[40px] px-3 rounded-lg text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                viewMode === 'board' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Paparan Papan Kanban"
+            >
+              <Columns3 className="w-4 h-4" />
+              <span>Papan</span>
             </button>
           </div>
 
           <button
             onClick={onOpenCreateModal}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-xs transition-colors cursor-pointer"
+            className="min-h-[44px] px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-base rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer active:scale-98"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Tugasan Baharu</span>
+            <Plus className="w-5 h-5 stroke-[2.5]" />
+            <span>+ Tugasan Baharu</span>
           </button>
         </div>
       </div>
 
-      {/* Boss Quote Card on Bottlenecks */}
-      <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 text-xs flex items-start gap-3">
-        <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <strong className="text-amber-900 font-semibold">Petua Boss untuk Aliran Tugas:</strong>
-          <span className="text-amber-800 ml-1">
-            “Siapa bertanggungjawab untuk apa ketika peak hour? Kalau jawapannya: semua orang buat semua... kemaskan flow dahulu sebelum salahkan pekerja lambat.”
-          </span>
-          <span className="text-neutral-500 text-[11px] block mt-1">
-            — Rujukan Dokumen #8 (Audit Kapasiti & Bottleneck)
-          </span>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-2xs space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      {/* Search and Filters */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           
           {/* Search Box */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <div className="relative flex-1">
+            <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari tugasan, SOP, atau nama staf..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-neutral-900 transition-colors"
+              className="w-full min-h-[44px] pl-11 pr-3 py-2 text-base bg-slate-50 focus:bg-white border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-slate-900 text-slate-900"
             />
           </div>
 
           {/* Filter by Staff */}
-          <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-neutral-400" />
+          <div className="w-full sm:w-64">
             <select
               value={selectedStaff}
               onChange={(e) => setSelectedStaff(e.target.value)}
-              className="text-xs bg-neutral-50 border border-neutral-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-neutral-900 text-neutral-700"
+              className="w-full min-h-[44px] px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-slate-900 text-slate-900 cursor-pointer"
             >
-              <option value="all">Semua Staf Penanggungjawab</option>
+              <option value="all">Semua Staf (PIC)</option>
               {teamMembers.map(m => (
                 <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
               ))}
@@ -164,16 +177,16 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ onOpenCreateModal }) =
 
         </div>
 
-        {/* Category Pills (Interactive Filter Controls) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+        {/* Category Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map(cat => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedCategory === cat.id
-                  ? 'bg-neutral-900 text-white shadow-2xs'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
               {cat.label}
@@ -182,353 +195,409 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ onOpenCreateModal }) =
         </div>
       </div>
 
-      {/* Main View Area: Board vs List */}
+      {/* Main View Area */}
       {viewMode === 'board' ? (
+        /* Board Kanban View with Simplified Cards */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
           {columns.map(col => {
             const colTasks = filteredTasks.filter(t => t.status === col.id);
             return (
-              <div key={col.id} className="bg-neutral-100/70 rounded-xl p-3 border border-neutral-200/80 flex flex-col min-h-[420px]">
-                
+              <div 
+                key={col.id} 
+                className="bg-slate-100/70 rounded-2xl p-3.5 border border-slate-200 flex flex-col min-h-[400px]"
+              >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-2 mb-3 border-b border-neutral-200/80">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-200">
+                  <div className="flex items-center gap-2">
                     {col.icon}
-                    <h3 className="text-xs font-bold text-neutral-800">{col.label}</h3>
+                    <h3 className="text-sm font-bold text-slate-900">{col.label}</h3>
                   </div>
-                  <span className="text-xs font-semibold text-neutral-500 tabular-nums">
+                  <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200 tabular-nums">
                     {colTasks.length}
                   </span>
                 </div>
 
-                {/* Task Cards in Column */}
-                <div className="space-y-2.5 flex-1 overflow-y-auto">
+                {/* Simplified Task Cards */}
+                <div className="space-y-3 flex-1 overflow-y-auto">
                   {colTasks.length === 0 ? (
-                    <div className="h-28 flex flex-col items-center justify-center text-center p-3 text-neutral-400 border border-dashed border-neutral-200 rounded-lg">
+                    <div className="h-28 flex flex-col items-center justify-center text-center p-3 text-slate-400 border border-dashed border-slate-200 rounded-xl">
                       <span className="text-xs">Tiada tugasan</span>
                     </div>
                   ) : (
                     colTasks.map(task => (
-                      <div 
+                      <div
                         key={task.id}
-                        className="bg-white rounded-xl p-3.5 border border-neutral-200/90 shadow-2xs hover:shadow-xs transition-shadow space-y-2 group"
+                        onClick={() => setPreviewTask(task)}
+                        className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all cursor-pointer space-y-2.5 group"
                       >
+                        {/* Requirement 4: Ringkaskan kad tugasan kepada tajuk, staf, waktu dan status */}
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-xs font-bold text-neutral-900 leading-snug">
+                          <h4 className="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors leading-snug">
                             {task.title}
                           </h4>
                           {task.isBottleneck && (
-                            <span 
-                              title="Tugasan ini dikenal pasti sebagai titik bottleneck operasi!"
-                              className="text-[10px] font-bold text-amber-800 bg-amber-100/90 px-1.5 py-0.5 rounded-sm border border-amber-300 shrink-0"
-                            >
+                            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 shrink-0">
                               Bottleneck
                             </span>
                           )}
                         </div>
 
-                        <p className="text-[11px] text-neutral-600 line-clamp-2 leading-relaxed">
-                          {task.description}
-                        </p>
-
-                        {task.sopStandard && (
-                          <div className="bg-neutral-50 p-2 rounded-lg border border-neutral-100 text-[10px] text-neutral-600">
-                            <span className="font-semibold text-neutral-700">Standard SOP: </span>
-                            <span>{task.sopStandard}</span>
-                          </div>
-                        )}
-
-                        <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-[11px]">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-5 h-5 rounded-full bg-neutral-800 text-white text-[10px] flex items-center justify-center font-bold">
+                        <div className="flex items-center justify-between text-sm text-slate-600 pt-1 border-t border-slate-100">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-6 h-6 rounded-full bg-slate-900 text-amber-400 font-bold text-xs flex items-center justify-center shrink-0">
                               {task.assignedToName.charAt(0)}
                             </div>
-                            <span className="text-neutral-700 font-medium truncate max-w-[90px]">
+                            <span className="font-semibold text-slate-800 truncate">
                               {task.assignedToName}
                             </span>
                           </div>
-
-                          <span className="text-neutral-500 tabular-nums">
-                            {task.estimatedHours} jam
-                          </span>
                         </div>
 
-                        {/* Interactive Status Changer & Actions */}
-                        <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
-                          <select
-                            value={task.status}
-                            onChange={(e) => setTaskStatus(task.id, e.target.value as TaskStatus)}
-                            className="text-[11px] font-medium bg-neutral-50 border border-neutral-200 rounded-md px-1.5 py-0.5 text-neutral-700 focus:outline-hidden"
-                          >
-                            <option value="todo">Belum Mula</option>
-                            <option value="in_progress">Sedang Jalan</option>
-                            <option value="review">Perlu Semak</option>
-                            <option value="completed">Siap</option>
-                          </select>
-
-                          <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100">
-                            <button
-                              onClick={() => setEditingTask(task)}
-                              className="p-1 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer"
-                              title="Sunting Tugasan"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => deleteTask(task.id)}
-                              className="p-1 text-neutral-400 hover:text-rose-600 rounded-md cursor-pointer"
-                              title="Padam Tugasan"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                        <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+                          <span>{task.shift}</span>
+                          {getStatusBadge(task.status)}
                         </div>
-
                       </div>
                     ))
                   )}
                 </div>
-
               </div>
             );
           })}
         </div>
       ) : (
-        /* List Mode View (Dense tabular display) */
-        <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden shadow-2xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-600 font-semibold">
-                <tr>
-                  <th className="py-3 px-4 w-10">Status</th>
-                  <th className="py-3 px-4">Tugasan & Penerangan</th>
-                  <th className="py-3 px-4">Kategori</th>
-                  <th className="py-3 px-4">Penanggungjawab (PIC)</th>
-                  <th className="py-3 px-4">Syif Operasi</th>
-                  <th className="py-3 px-4 text-right">Anggaran Masa</th>
-                  <th className="py-3 px-4 text-center">Tindakan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {filteredTasks.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-10 text-neutral-400">
-                      Tiada tugasan dijumpai mengikut kriteria carian.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTasks.map(task => (
-                    <tr key={task.id} className="hover:bg-neutral-50/80 transition-colors">
-                      <td className="py-3 px-4">
-                        <button
-                          onClick={() => setTaskStatus(task.id, task.status === 'completed' ? 'todo' : 'completed')}
-                          className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-colors cursor-pointer ${
-                            task.status === 'completed'
-                              ? 'bg-emerald-600 border-emerald-600 text-white'
-                              : 'border-neutral-300 hover:border-neutral-400 bg-white'
-                          }`}
-                        >
-                          {task.status === 'completed' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        </button>
-                      </td>
-                      <td className="py-3 px-4 max-w-md">
-                        <div className="flex items-center gap-2">
-                          <span className={`font-semibold ${task.status === 'completed' ? 'line-through text-neutral-400' : 'text-neutral-900'}`}>
-                            {task.title}
-                          </span>
-                          {task.isBottleneck && (
-                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-sm border border-amber-200">
-                              Bottleneck
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-neutral-500 line-clamp-1 mt-0.5">
-                          {task.description}
-                        </p>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="capitalize text-neutral-700">
-                          {task.category.replace('_', ' ')}
+        /* List Mode View (Simplified, responsive, no horizontal scroll) */
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="divide-y divide-slate-100">
+            {filteredTasks.length === 0 ? (
+              <div className="p-8 text-center text-slate-400">
+                <p className="text-base">Tiada tugasan ditemui mengikut tapisan semasa.</p>
+              </div>
+            ) : (
+              filteredTasks.map(task => (
+                <div
+                  key={task.id}
+                  onClick={() => setPreviewTask(task)}
+                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer group"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h4 className="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+                        {task.title}
+                      </h4>
+                      {task.isBottleneck && (
+                        <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">
+                          Bottleneck
                         </span>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap font-medium text-neutral-900">
-                        {task.assignedToName}
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap text-neutral-500">
-                        {task.shift}
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono tabular-nums text-neutral-700">
-                        {task.estimatedHours} j
-                      </td>
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => setEditingTask(task)}
-                            className="text-neutral-500 hover:text-neutral-900 p-1 cursor-pointer"
-                            title="Sunting"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => deleteTask(task.id)}
-                            className="text-neutral-400 hover:text-rose-600 p-1 cursor-pointer"
-                            title="Padam"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-3 text-sm text-slate-500 flex-wrap">
+                      <span className="font-semibold text-slate-800">Staf: {task.assignedToName}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>Waktu: {task.shift}</span>
+                      {task.estimatedHours && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{task.estimatedHours} jam</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    {getStatusBadge(task.status)}
+                    <span className="text-slate-400 text-sm hidden sm:inline group-hover:text-slate-700">
+                      Tekan untuk SOP →
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
 
-      {/* Edit Task Modal */}
-      {editingTask && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-neutral-200 animate-in fade-in zoom-in-95 duration-100">
-            <h3 className="text-base font-bold text-neutral-900 mb-4">
-              Kemaskini Tugasan & SOP
-            </h3>
+      {/* Task Preview & SOP Modal (Requirement 4: Buka penerangan serta SOP apabila kad ditekan) */}
+      {previewTask && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-100 max-h-[90vh] overflow-y-auto">
             
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              updateTask(editingTask.id, editingTask);
-              setEditingTask(null);
-            }} className="space-y-4 text-xs">
-              <div>
-                <label className="font-semibold text-neutral-700 block mb-1">Tajuk Tugasan</label>
-                <input
-                  type="text"
-                  required
-                  value={editingTask.title}
-                  onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                  className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-neutral-900"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-neutral-700 block mb-1">Penerangan Ringkas</label>
-                <textarea
-                  rows={2}
-                  value={editingTask.description}
-                  onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
-                  className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-neutral-900"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-neutral-700 block mb-1">Standard Kerja / Kriteria Selesai</label>
-                <input
-                  type="text"
-                  value={editingTask.sopStandard || ''}
-                  onChange={(e) => setEditingTask({ ...editingTask, sopStandard: e.target.value })}
-                  placeholder="Contoh: Meja siap dibersihkan dalam 90 saat..."
-                  className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-neutral-900"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-semibold text-neutral-700 block mb-1">Penanggungjawab (PIC)</label>
-                  <select
-                    value={editingTask.assignedToId}
-                    onChange={(e) => {
-                      const member = teamMembers.find(m => m.id === e.target.value);
-                      setEditingTask({
-                        ...editingTask,
-                        assignedToId: e.target.value,
-                        assignedToName: member ? member.name : ''
-                      });
-                    }}
-                    className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden"
-                  >
-                    {teamMembers.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))}
-                  </select>
+            <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+              <div className="min-w-0 flex-1 pr-2">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  {getStatusBadge(previewTask.status)}
+                  {previewTask.isBottleneck && (
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                      Titik Bottleneck Operasi
+                    </span>
+                  )}
                 </div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  {previewTask.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setPreviewTask(null)}
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
+            <div className="py-4 space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
-                  <label className="font-semibold text-neutral-700 block mb-1">Kategori</label>
-                  <select
-                    value={editingTask.category}
-                    onChange={(e) => setEditingTask({ ...editingTask, category: e.target.value as TaskCategory })}
-                    className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden"
-                  >
-                    <option value="opening">Pembukaan (Opening)</option>
-                    <option value="peak_hour">Waktu Puncak (Peak Hour)</option>
-                    <option value="closing">Penutupan (Closing)</option>
-                    <option value="operasi">Operasi Rutin</option>
-                    <option value="kebersihan">Kebersihan & Peralatan</option>
-                  </select>
+                  <span className="text-xs font-semibold text-slate-500 block">Penanggungjawab (PIC):</span>
+                  <strong className="text-base text-slate-900">{previewTask.assignedToName}</strong>
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 block">Waktu / Syif:</span>
+                  <strong className="text-base text-slate-900">{previewTask.shift}</strong>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-semibold text-neutral-700 block mb-1">Status</label>
-                  <select
-                    value={editingTask.status}
-                    onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value as TaskStatus })}
-                    className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden"
-                  >
-                    <option value="todo">Belum Mula</option>
-                    <option value="in_progress">Sedang Berjalan</option>
-                    <option value="review">Perlu Semakan</option>
-                    <option value="completed">Telah Siap</option>
-                  </select>
-                </div>
+              <div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  Penerangan Tugasan:
+                </span>
+                <p className="text-base text-slate-800 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  {previewTask.description || 'Tiada penerangan perincian.'}
+                </p>
+              </div>
 
-                <div>
-                  <label className="font-semibold text-neutral-700 block mb-1">Anggaran Masa (Jam)</label>
+              <div>
+                <span className="text-xs font-bold text-amber-900 uppercase tracking-wider block mb-1">
+                  Standard SOP & Langkah Kerja:
+                </span>
+                <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-base text-amber-950 font-medium leading-relaxed">
+                  {previewTask.sopStandard || 'Tiada SOP khusus. Laksanakan mengikut standard operasi asas harian.'}
+                </div>
+              </div>
+
+              {/* Status Switcher */}
+              <div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                  Tukar Status Tugasan:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(['todo', 'in_progress', 'review', 'completed'] as const).map(st => (
+                    <button
+                      key={st}
+                      onClick={() => {
+                        setTaskStatus(previewTask.id, st);
+                        setPreviewTask({ ...previewTask, status: st });
+                      }}
+                      className={`min-h-[44px] px-2 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                        previewTask.status === st
+                          ? 'bg-slate-900 text-white border-slate-900'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      }`}
+                    >
+                      {st === 'todo' ? 'Belum Mula' : st === 'in_progress' ? 'Dalam Proses' : st === 'review' ? 'Perlu Semak' : 'Selesai'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setEditingTask(previewTask);
+                    setPreviewTask(null);
+                  }}
+                  className="min-h-[44px] px-3.5 py-2 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Sunting</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Padam tugasan ini?')) {
+                      deleteTask(previewTask.id);
+                      setPreviewTask(null);
+                    }
+                  }}
+                  className="min-h-[44px] px-3.5 py-2 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Padam</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setPreviewTask(null)}
+                className="min-h-[44px] px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-xl cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Edit Task Modal using the simplified flow */}
+      {editingTask && (
+        <EditTaskModal 
+          task={editingTask} 
+          onClose={() => setEditingTask(null)} 
+        />
+      )}
+
+    </div>
+  );
+};
+
+// Simplified Edit Task Modal component matching Requirement 5
+const EditTaskModal: React.FC<{ task: Task; onClose: () => void }> = ({ task, onClose }) => {
+  const { teamMembers, updateTask } = useApp();
+
+  const [title, setTitle] = useState(task.title);
+  const [assignedToId, setAssignedToId] = useState(task.assignedToId || '');
+  const [shift, setShift] = useState(task.shift || '');
+
+  // Advanced fields in collapsible
+  const [showDetails, setShowDetails] = useState(false);
+  const [description, setDescription] = useState(task.description || '');
+  const [category, setCategory] = useState<TaskCategory>(task.category);
+  const [priority, setPriority] = useState<TaskPriority>(task.priority);
+  const [sopStandard, setSopStandard] = useState(task.sopStandard || '');
+  const [isBottleneck, setIsBottleneck] = useState(task.isBottleneck);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const assigned = teamMembers.find(m => m.id === assignedToId);
+
+    updateTask(task.id, {
+      title: title.trim(),
+      assignedToId,
+      assignedToName: assigned ? assigned.name : 'Belum Ditugaskan',
+      shift,
+      description,
+      category,
+      priority,
+      sopStandard,
+      isBottleneck
+    });
+
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-100 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+          <h3 className="text-lg font-bold text-slate-900">Sunting Tugasan</h3>
+          <button
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-slate-800 mb-1.5">1. Nama Tugasan</label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full min-h-[44px] px-3.5 py-2.5 text-base bg-slate-50 border border-slate-300 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-800 mb-1.5">2. Pilih Staf (PIC)</label>
+            <select
+              value={assignedToId}
+              onChange={(e) => setAssignedToId(e.target.value)}
+              className="w-full min-h-[44px] px-3.5 py-2.5 text-base bg-slate-50 border border-slate-300 rounded-xl cursor-pointer"
+            >
+              <option value="">Pilih staf (pilihan)...</option>
+              {teamMembers.map(m => (
+                <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-800 mb-1.5">3. Waktu / Syif</label>
+            <input
+              type="text"
+              value={shift}
+              onChange={(e) => setShift(e.target.value)}
+              className="w-full min-h-[44px] px-3.5 py-2.5 text-base bg-slate-50 border border-slate-300 rounded-xl"
+            />
+          </div>
+
+          {/* Collapsible Details */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm rounded-xl flex items-center justify-between cursor-pointer"
+            >
+              <span>Butiran Lanjut (Kategori, Keutamaan, SOP & Catatan)</span>
+              {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showDetails && (
+              <div className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                <label className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg cursor-pointer">
                   <input
-                    type="number"
-                    step="0.25"
-                    value={editingTask.estimatedHours}
-                    onChange={(e) => setEditingTask({ ...editingTask, estimatedHours: parseFloat(e.target.value) || 0 })}
-                    className="w-full p-2 border border-neutral-200 rounded-lg focus:outline-hidden"
+                    type="checkbox"
+                    checked={isBottleneck}
+                    onChange={(e) => setIsBottleneck(e.target.checked)}
+                    className="w-4 h-4 text-amber-500 rounded"
+                  />
+                  <span className="text-xs font-bold text-amber-900">Titik Bottleneck Operasi</span>
+                </label>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Standard SOP</label>
+                  <textarea
+                    rows={2}
+                    value={sopStandard}
+                    onChange={(e) => setSopStandard(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Penerangan Tugasan</label>
+                  <textarea
+                    rows={2}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
                   />
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="bottleneckCheck"
-                  checked={editingTask.isBottleneck}
-                  onChange={(e) => setEditingTask({ ...editingTask, isBottleneck: e.target.checked })}
-                  className="rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
-                />
-                <label htmlFor="bottleneckCheck" className="font-medium text-neutral-800">
-                  Tandakan sebagai Titik Bottleneck Operasi (Perlu perhatian ketika peak hour)
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-neutral-200 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingTask(null)}
-                  className="px-4 py-2 border border-neutral-200 rounded-lg text-neutral-700 hover:bg-neutral-50 cursor-pointer font-medium"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 cursor-pointer font-medium"
-                >
-                  Simpan Perubahan
-                </button>
-              </div>
-            </form>
+            )}
           </div>
-        </div>
-      )}
 
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="min-h-[44px] px-4 py-2 text-slate-600 rounded-xl font-semibold text-base cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="min-h-[44px] px-6 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-base rounded-xl cursor-pointer"
+            >
+              Kemas Kini Tugasan
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

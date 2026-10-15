@@ -224,19 +224,22 @@ export default function RecordIsuPerbincangan({ onBack, onSaved }: RecordIsuPerb
       {/* Main Container without pill badges */}
       <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 space-y-10">
         
-        {/* BAHAGIAN 1: DOKUMEN #4 - REKOD TEGURAN & PERBINCANGAN */}
+        {/* BAHAGIAN 1: DOKUMEN 4 - REKOD TEGURAN & PERBINCANGAN */}
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+          <span className="text-xs font-bold text-slate-800 bg-amber-400 px-3 py-1 rounded-md">
+            Dokumen 4
+          </span>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
             Rekod Teguran & Perbincangan Pekerja
           </h1>
-          <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
-            Gunakan apabila sesuatu isu cukup penting untuk direkodkan supaya boss tidak bergantung pada ingatan semata-mata <em className="text-slate-900 font-medium">“Aku rasa kita dah pernah bincang”</em>.
+          <p className="text-slate-600 text-sm sm:text-base mt-1 leading-relaxed">
+            Gunakan apabila sesuatu isu penting untuk direkodkan supaya bos tidak bergantung pada ingatan semata-mata <em className="text-slate-900 font-medium">“Aku rasa kita dah pernah bincang”</em>.
           </p>
 
-          <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div className="mt-3 p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-sm text-amber-950 flex items-start gap-2.5">
+            <Sparkles className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <div>
-              <strong>Panduan Boss (Tulis Fakta, Elakkan Label):</strong>
+              <strong>Panduan Bos (Tulis Fakta, Elakkan Label):</strong>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                 <span className="text-rose-700">❌ Kurang Baik: “Pekerja memang malas.”</span>
                 <span className="text-emerald-700">✅ Lebih Baik: “Dijadualkan masuk 9:00 pagi, tiba 9:42 pagi tanpa makluman awal.”</span>
@@ -338,9 +341,9 @@ export default function RecordIsuPerbincangan({ onBack, onSaved }: RecordIsuPerb
 
             <button 
               type="submit"
-              className="w-full bg-amber-600 text-white py-2.5 rounded-lg font-semibold hover:bg-amber-700 transition text-sm cursor-pointer shadow-xs flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] bg-amber-400 hover:bg-amber-300 text-slate-950 py-3 rounded-xl font-bold text-base transition cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-5 h-5" />
               <span>Simpan Rekod Teguran</span>
             </button>
           </form>
@@ -348,23 +351,26 @@ export default function RecordIsuPerbincangan({ onBack, onSaved }: RecordIsuPerb
 
         <hr className="border-slate-200" />
 
-        {/* BAHAGIAN 2: DOKUMEN #5 - BORANG PENJELASAN PEKERJA */}
+        {/* BAHAGIAN 2: DOKUMEN 5 - BORANG PENJELASAN PEKERJA */}
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+              <span className="text-xs font-bold text-slate-800 bg-amber-400 px-3 py-1 rounded-md">
+                Dokumen 5
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
                 Borang Penjelasan Pekerja
               </h2>
-              <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
-                Memberi ruang kepada pekerja menjelaskan sesuatu kejadian sebelum boss membuat kesimpulan muktamad (Fakta → Penjelasan → Rekod → Keputusan).
+              <p className="text-slate-600 text-sm sm:text-base mt-1 leading-relaxed">
+                Memberi ruang kepada pekerja menjelaskan sesuatu kejadian sebelum bos membuat keputusan muktamad (Fakta → Dengar → Expectation → Next Step).
               </p>
             </div>
             <button
               type="button"
               onClick={handlePrintPenjelasan}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 cursor-pointer"
+              className="min-h-[44px] px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-bold rounded-xl border border-slate-300 cursor-pointer flex items-center gap-2 self-start sm:self-center"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-4 h-4" />
               <span>Cetak Penjelasan</span>
             </button>
           </div>
@@ -448,9 +454,9 @@ export default function RecordIsuPerbincangan({ onBack, onSaved }: RecordIsuPerb
 
             <button 
               type="submit"
-              className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition text-sm cursor-pointer shadow-xs flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-base transition cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-5 h-5" />
               <span>Simpan Borang Penjelasan</span>
             </button>
           </form>

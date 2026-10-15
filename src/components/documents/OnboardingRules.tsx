@@ -302,19 +302,22 @@ export default function OnboardingRules({ onBack, onSaved }: OnboardingRulesProp
       {/* Main Card Container */}
       <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
         
-        {/* Header without pill badge */}
+        {/* Header */}
         <div className="border-b border-slate-100 pb-5 mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-            Checklist Hari Pertama & Peraturan Kerja
+          <span className="text-xs font-bold text-slate-800 bg-amber-400 px-3 py-1 rounded-md">
+            Dokumen 2 & 3
+          </span>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
+            Senarai Semak Hari Pertama & Peraturan Kerja
           </h1>
-          <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
-            Memastikan pekerja baru menerima penerangan asas dan rules jelas sebelum boss menganggap <em className="text-slate-900 font-medium">“benda ni common sense”</em>.
+          <p className="text-slate-600 text-sm sm:text-base mt-1 leading-relaxed">
+            Memastikan pekerja baru menerima penerangan asas dan peraturan jelas sebelum bos menganggap <em className="text-slate-900 font-medium">“benda ni common sense”</em>.
           </p>
 
-          <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div className="mt-3 p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-sm text-amber-950 flex items-start gap-2.5">
+            <Sparkles className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <span>
-              <strong>Ayat Siap Guna Boss:</strong> “Kalau shift bermula pukul 9, expectation kita ialah pukul 9 anda sudah bersedia untuk mula bekerja.”
+              <strong>Ayat Siap Guna Bos:</strong> “Kalau syif bermula pukul 9, expectation kita ialah pukul 9 anda sudah bersedia untuk mula bekerja di stesen.”
             </span>
           </div>
         </div>
@@ -566,19 +569,19 @@ export default function OnboardingRules({ onBack, onSaved }: OnboardingRulesProp
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
             <button 
               type="submit"
-              className="w-full sm:flex-1 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="w-full sm:flex-1 min-h-[48px] bg-amber-400 hover:bg-amber-300 text-slate-950 py-3 rounded-xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
             >
-              <Save className="w-4 h-4" />
-              <span>Simpan Onboarding & Rules</span>
+              <Save className="w-5 h-5" />
+              <span>Simpan Onboarding & Peraturan</span>
             </button>
 
             <button
               type="button"
               onClick={handlePrintCurrent}
-              className="w-full sm:w-auto px-5 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto min-h-[48px] px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-900 rounded-xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>Cetak Checklist</span>
+              <Printer className="w-5 h-5" />
+              <span>Cetak Senarai Semak</span>
             </button>
           </div>
 
