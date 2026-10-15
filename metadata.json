@@ -1,0 +1,6 @@
+{
+  "name": "AKULAH BOS - Toolkit Pengurusan & Produktiviti Pasukan",
+  "description": "Toolkit operasi, pengurusan tugasan, dan pelacakan produktiviti pasukan berasaskan metodologi AKULAH BOSS™ (Rules • Record • Response).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
